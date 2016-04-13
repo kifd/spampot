@@ -4,7 +4,7 @@ Donate Link: http://drakard.com/
 Tags: spam trap, honeypot, honey pot, honey trap, spam, anti spam, anti-spam, registration spam, login spam, hidden field
 Requires at least: 3.8 or higher
 Tested up to: 4.5
-Stable tag: 0.3
+Stable tag: 0.31
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -37,3 +37,8 @@ No 3rd party service, no intrusive captchas.
 
 = 0.3 =
 * Initial release.
+
+= 0.31 =
+* Fix for 4.5's changed login text.
+
+

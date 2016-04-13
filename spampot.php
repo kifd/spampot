@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: SpamPot
-Version: 0.3
+Version: 0.31
 Plugin URI: http://drakard.com/
 Description: Adds a honeypot form field on the registration and login pages to trap spammers.
 Author: Keith Drakard
@@ -39,7 +39,6 @@ class SpamPotPlugin {
 
 		if (isset($_POST[$field]) AND '' != $_POST[$field]) {
 			// then we (most likely) detected a robot filling in the form fields blindly
-			// TODO: log the IP + user agent
 			wp_redirect(site_url('wp-login.php?registration=disabled'));
 			die(__('If you\'re human and see this message, then please contact the site administrator.'));
 
@@ -59,7 +58,7 @@ class SpamPotPlugin {
 		$fields = array(
 			'login' => array(
 				'id'	=>	'user_login',
-				'text'	=> __('Username'),
+				'text'	=> __('Username or Email'),
 				'type'	=> 'text',
 				'name'	=> 'log',
 				'aria'	=> ' aria-describedby="login_error"',
@@ -94,7 +93,7 @@ class SpamPotPlugin {
 				. '<input type="'.$fields[$action]['type'].'" name="'.$this->notspam.'" id="'.$this->notspam.'" class="input" value="" '.$fields[$action]['tail'].' />'
 				. '</label>'.chr(10).chr(9).'</p>'.chr(10).chr(9);
 		
-		echo preg_replace('/<p>\s+<label for="'.$fields[$action]['id'].'">'.$fields[$action]['text'].'<br \/>\s+.+<\/label>\s+<\/p>/', $output, $form);
+		echo preg_replace('/<p>\s+<label for="'.$fields[$action]['id'].'">[^<]+<br \/>\s+.+<\/label>\s+<\/p>/', $output, $form);
 	}
 
 	
