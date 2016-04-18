@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: SpamPot
-Version: 0.31
+Version: 0.32
 Plugin URI: http://drakard.com/
 Description: Adds a honeypot form field on the registration and login pages to trap spammers.
 Author: Keith Drakard
@@ -20,8 +20,8 @@ class SpamPotPlugin {
 		add_action('login_form_login', array($this, 'trap_output'), 1);
 		
 		// add the honeypot field to the forms
-		add_action('login_form', array($this, 'replace_fields'));
-		add_action('register_form', array($this, 'replace_fields'));
+		add_action('login_head', array($this, 'spampot_trap_start'), 191);
+		add_action('login_footer', array($this, 'spampot_trap_end'), 191);
 		
 		// our css to hide the honeypot
 		add_action('login_footer', array($this, 'custom_css'));
@@ -47,12 +47,14 @@ class SpamPotPlugin {
 			$_POST[$field] = $_POST[$this->notspam];
 		}
 
-		// and if we're displaying the form again, either for the first time or after a failure, we start buffering now
-		ob_start();
 	}
 
 
-	public function replace_fields() {
+	public function spampot_trap_start() {
+		ob_start(array($this, 'replace_fields'));
+	}
+
+	public function replace_fields($body) {
 		global $action, $user_email;
 
 		$fields = array(
@@ -72,13 +74,12 @@ class SpamPotPlugin {
 				'name'	=> 'user_email',
 				'aria'	=> '',
 				'value'	=> esc_attr(stripslashes($user_email)),
-				'tail'	=> 'size="25" tabindex="20"',
+				'tail'	=> 'size="25"',
 			),
 		);
 
-		$form = ob_get_contents(); ob_end_clean();
 		
-		if (! isset($fields[$action])) { echo $form; return; } // in case
+		if (! isset($fields[$action])) { return $body; } // in case
 
 		$crtab = chr(10).chr(9).chr(9);
 
@@ -93,7 +94,11 @@ class SpamPotPlugin {
 				. '<input type="'.$fields[$action]['type'].'" name="'.$this->notspam.'" id="'.$this->notspam.'" class="input" value="" '.$fields[$action]['tail'].' />'
 				. '</label>'.chr(10).chr(9).'</p>'.chr(10).chr(9);
 		
-		echo preg_replace('/<p>\s+<label for="'.$fields[$action]['id'].'">[^<]+<br \/>\s+.+<\/label>\s+<\/p>/', $output, $form);
+		return preg_replace('/<p>\s+<label for="'.$fields[$action]['id'].'">[^<]+<br \/>\s+.+<\/label>\s+<\/p>/', $output, $body);
+	}
+
+	public function spampot_trap_end() {
+		ob_get_flush();
 	}
 
 	

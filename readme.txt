@@ -1,10 +1,10 @@
 === SpamPot ===
 Contributors: keith_wp
 Donate Link: http://drakard.com/
-Tags: spam trap, honeypot, honey pot, honey trap, spam, anti spam, anti-spam, registration spam, login spam, hidden field
+Tags: spam trap, honeypot, honey pot, honey trap, spam, anti spam, anti-spam, registration, registration spam, login, login spam, hidden field
 Requires at least: 3.8 or higher
 Tested up to: 4.5
-Stable tag: 0.31
+Stable tag: 0.32
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -41,4 +41,5 @@ No 3rd party service, no intrusive captchas.
 = 0.31 =
 * Fix for 4.5's changed login text.
 
-
+= 0.32 =
+* Changed the way the honeypot field was inserted to avoid a conflict with my Custom Logins plugin.
