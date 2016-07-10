@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: SpamPot
-Version: 0.32
+Version: 0.33
 Plugin URI: http://drakard.com/
 Description: Adds a honeypot form field on the registration and login pages to trap spammers.
 Author: Keith Drakard
@@ -34,13 +34,29 @@ class SpamPotPlugin {
 		$hash = (function_exists('hash')) ? hash('sha256', $data) : md5($data);
 		$this->notspam = 'class-'.$hash; // css classes can't start with a number, so make sure we prefix it
 
+		// login or registration?
 		global $action;
+
+		// first check that we have a honeypot field inserted ok
+		if (isset($_POST['error-'.$this->notspam])) {
+			// then we failed to do anything, so notify the admin and bail now rather than break the form
+
+			// TODO: notice on the dashboard instead?
+			$to = get_option('admin_email'); if (! $to) return; // no admin email, can't notify them
+			$website = get_option('blogname', __('your website', 'SpamPot'));
+			$subject = __('SpamPot Plugin Failed', 'SpamPot');
+			$message = __("Hi,\n\nthis is an automated notice to let you know that the SpamPot plugin you installed on {$website} is unable to insert the honeypot field into the {$action} form.\n\nPlease raise a support thread at https://wordpress.org/support/plugin/spampot saying which version of WP you use, and any plugins that alter that form.\n\nregards,\nkeith_wp", 'SpamPot');
+			wp_mail($to, $subject, $message);
+
+			return;
+		}
+
 		$field = ('login' == $action) ? 'log' : 'user_email';
 
 		if (isset($_POST[$field]) AND '' != $_POST[$field]) {
 			// then we (most likely) detected a robot filling in the form fields blindly
 			wp_redirect(site_url('wp-login.php?registration=disabled'));
-			die(__('If you\'re human and see this message, then please contact the site administrator.'));
+			die(__('If you\'re human and see this message, then please contact the site administrator.', 'SpamPot'));
 
 		} elseif (isset($_POST[$this->notspam]) AND '' != $_POST[$this->notspam]) {
 			// else we switch the fields and let WP go about its business
@@ -94,7 +110,14 @@ class SpamPotPlugin {
 				. '<input type="'.$fields[$action]['type'].'" name="'.$this->notspam.'" id="'.$this->notspam.'" class="input" value="" '.$fields[$action]['tail'].' />'
 				. '</label>'.chr(10).chr(9).'</p>'.chr(10).chr(9);
 		
-		return preg_replace('/<p>\s+<label for="'.$fields[$action]['id'].'">[^<]+<br \/>\s+.+<\/label>\s+<\/p>/', $output, $body);
+		$changed = preg_replace('|<p>\s+<label for="'.$fields[$action]['id'].'">[^<]+<br />\s+.+</label>\s+</p>|', $output, $body);
+
+		// if we haven't inserted the honeypot, then don't break the form
+		if ($changed == $body) {
+			$changed = preg_replace('|</form>|', '<input type="hidden" name="error-'.$this->notspam.'" value="'.__('Could not insert honeypot field', 'SpamPot').'"></form>', $body);
+		}
+
+		return $changed;
 	}
 
 	public function spampot_trap_end() {
