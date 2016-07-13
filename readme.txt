@@ -4,7 +4,7 @@ Donate Link: http://drakard.com/
 Tags: spam trap, honeypot, honey pot, honey trap, spam, anti spam, anti-spam, registration, registration spam, login, login spam, hidden field
 Requires at least: 3.8
 Tested up to: 4.5
-Stable tag: 0.33
+Stable tag: 0.34
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,3 +47,5 @@ No 3rd party service, no intrusive captchas.
 = 0.33 =
 * If the honeypot field is unable to be inserted, then the form will continue working and notify the admin by email of this failure.
 
+= 0.34 =
+* Changed the regex that matches the "normal" username field to be slightly more robust.

@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: SpamPot
-Version: 0.33
+Version: 0.34
 Plugin URI: http://drakard.com/
 Description: Adds a honeypot form field on the registration and login pages to trap spammers.
 Author: Keith Drakard
@@ -110,7 +110,8 @@ class SpamPotPlugin {
 				. '<input type="'.$fields[$action]['type'].'" name="'.$this->notspam.'" id="'.$this->notspam.'" class="input" value="" '.$fields[$action]['tail'].' />'
 				. '</label>'.chr(10).chr(9).'</p>'.chr(10).chr(9);
 		
-		$changed = preg_replace('|<p>\s+<label for="'.$fields[$action]['id'].'">[^<]+<br />\s+.+</label>\s+</p>|', $output, $body);
+		// hopefully a more bulletproof regex
+		$changed = preg_replace('|<p>\s*<label for="'.$fields[$action]['id'].'">.+?</label>\s*</p>|s', $output, $body);
 
 		// if we haven't inserted the honeypot, then don't break the form
 		if ($changed == $body) {
